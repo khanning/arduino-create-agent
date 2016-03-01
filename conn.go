@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	log "github.com/Sirupsen/logrus"
+	"github.com/arduino/arduino-create-agent/utilities"
 	"github.com/gin-gonic/gin"
 	"github.com/googollee/go-socket.io"
 )
@@ -77,7 +78,7 @@ func uploadHandler(c *gin.Context) {
 	}
 
 	if header != nil {
-		path, err := saveFileonTempDir(header.Filename, sketch)
+		path, err := utilities.SaveFileonTempDir(header.Filename, sketch)
 		if err != nil {
 			c.String(http.StatusBadRequest, err.Error())
 		}
