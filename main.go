@@ -36,15 +36,15 @@ var (
 	gcType       = flag.String("gc", "std", "Type of garbage collection. std = Normal garbage collection allowing system to decide (this has been known to cause a stop the world in the middle of a CNC job which can cause lost responses from the CNC controller and thus stalled jobs. use max instead to solve.), off = let memory grow unbounded (you have to send in the gc command manually to garbage collect or you will run out of RAM eventually), max = Force garbage collection on each recv or send on a serial port (this minimizes stop the world events and thus lost serial responses, but increases CPU usage)")
 	logDump      = flag.String("log", "off", "off = (default)")
 	// hostname. allow user to override, otherwise we look it up
-	hostname       = flag.String("hostname", "unknown-hostname", "Override the hostname we get from the OS")
-	updateUrl      = flag.String("updateUrl", "", "")
-	appName        = flag.String("appName", "", "")
-	genCert        = flag.Bool("generateCert", false, "")
-	globalToolsMap = make(map[string]string)
-	port           string
-	portSSL        string
-	origins        = flag.String("origins", "", "Allowed origin list for CORS")
-	address        = flag.String("address", "127.0.0.1", "The address where to listen. Defaults to localhost")
+	hostname  = flag.String("hostname", "unknown-hostname", "Override the hostname we get from the OS")
+	updateUrl = flag.String("updateUrl", "", "")
+	appName   = flag.String("appName", "", "")
+	genCert   = flag.Bool("generateCert", false, "")
+	port      string
+	portSSL   string
+	origins   = flag.String("origins", "", "Allowed origin list for CORS")
+	address   = flag.String("address", "127.0.0.1", "The address where to listen. Defaults to localhost")
+	Tools     tools.Tools
 )
 
 type NullWriter int
@@ -87,7 +87,13 @@ func main() {
 			src, _ := osext.Executable()
 			dest := filepath.Dir(src)
 
-			tools.CreateDir()
+			// Instantiate Tools
+			Tools = tools.Tools{
+				Directory: "/home/user/.arduino-create",
+				IndexURL:  "http://downloads.arduino.cc/packages/package_index.json",
+				Logger:    log.New(),
+			}
+			Tools.Init()
 
 			if embedded_autoextract {
 				// save the config.ini (if it exists)
