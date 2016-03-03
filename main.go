@@ -6,6 +6,7 @@ package main
 import (
 	"flag"
 	"os"
+	"os/user"
 	"path/filepath"
 	"runtime/debug"
 	"strconv"
@@ -44,6 +45,7 @@ var (
 	portSSL   string
 	origins   = flag.String("origins", "", "Allowed origin list for CORS")
 	address   = flag.String("address", "127.0.0.1", "The address where to listen. Defaults to localhost")
+	indexURL  = flag.String("indexURL", "http://downloads.arduino.cc/packages/package_index.json", "The address from where to download the index json containing the location of upload tools")
 	Tools     tools.Tools
 )
 
@@ -88,9 +90,11 @@ func main() {
 			dest := filepath.Dir(src)
 
 			// Instantiate Tools
+			usr, _ := user.Current()
+			directory := usr.HomeDir + "/.arduino-create"
 			Tools = tools.Tools{
-				Directory: "/home/user/.arduino-create",
-				IndexURL:  "http://downloads.arduino.cc/packages/package_index.json",
+				Directory: directory,
+				IndexURL:  *indexURL,
 				Logger:    log.New(),
 			}
 			Tools.Init()
